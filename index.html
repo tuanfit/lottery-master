@@ -95,7 +95,7 @@
             align-items: center;
             text-align: center;
             padding: 20px;
-            pointer-events: none;
+            pointer-events: auto;
             overflow: auto;
             gap: 15px;
             /* khoảng cách giữa các hàng */
@@ -315,7 +315,7 @@
             display: flex;
             /* gap: 10px; */
             flex-wrap: wrap;
-            max-width: 50%;
+            max-width: 65%;
         }
 
         /* BÊN PHẢI */
@@ -380,9 +380,49 @@
 
         .result-btn {
             position: fixed;
+            top: 25px;
+            right: 1px;
+            z-index: 20000;
+        }
+
+        .home-btn {
+            display: none;
+            position: fixed;
             top: 5px;
             right: 1px;
             z-index: 20000;
+        }
+
+        #currentDate {
+            position: fixed;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 25000;
+
+            /* --- Kiểu chữ Bold & Serif --- */
+            font-family: "Times New Roman", Times, serif;
+            font-size: 26px;
+            /* Tăng nhẹ kích thước */
+            font-weight: 800;
+            /* Độ đậm cao nhất */
+            letter-spacing: 2px;
+            /* Giãn chữ cho thoáng giống tiêu đề */
+            text-transform: uppercase;
+            /* Viết hoa để đồng bộ hoàn toàn */
+
+            /* --- Màu sắc & Hiệu ứng --- */
+            color: #FFFFFF;
+            background: transparent;
+            /* Bỏ nền để cùng tông với ảnh */
+
+            /* Đổ bóng đậm để chữ nổi khối trên nền xanh */
+            text-shadow:
+                2px 2px 4px rgba(0, 0, 0, 0.7),
+                0px 0px 10px rgba(255, 255, 255, 0.2);
+
+            user-select: none;
+            white-space: nowrap;
         }
     </style>
 </head>
@@ -461,9 +501,19 @@
     <script type="text/javascript" src="js/tagcanvas.js"></script>
     <script type="text/javascript" src="js/member.js"></script>
     <script>
+        var needConfirm = false;
+    </script>
+
+    <script>
         document.addEventListener('keydown', function (e) {
             if (e.code === 'Enter' || e.code === 'Space') {
-                e.preventDefault();                       // tránh page scroll
+                e.preventDefault();
+                const homeBtn = document.querySelector('.home-btn');
+                if (homeBtn) {
+                    homeBtn.style.display = 'flex'; // tránh page scroll
+                }
+                currentDate.style.display = 'none';
+
                 const home = document.getElementById('home-screen');
                 if (home && home.style.display !== 'none') {
                     home.style.display = 'none';
@@ -482,6 +532,7 @@
             var choosed = JSON.parse(localStorage.getItem('choosed')) || {};
             var bgMusic = document.getElementById('bgMusic'); // 🎵 nhạc nền
             var isToggling = false;
+
             console.log(choosed);
             var speed = function () {
                 return [0.1 * Math.random() + 0.01, -(0.1 * Math.random() + 0.01)];
@@ -597,6 +648,57 @@
                     'flex-direction': 'column',
                     'align-items': 'center'
                 }).html(html);
+
+                // Thêm hiệu ứng pháo hoa
+                createConfetti();
+                html += `
+<div style="margin-top:0px;">
+    <button class="pure-button btn-reset"
+        style="width:200px;height:60px;font-size:18px;"
+        onclick="confirmResult()">确认
+    </button>
+</div>
+`;
+                // 🔽 DÒNG NÀY PHẢI LÀ CUỐI
+                $('#result').html(html).show();
+                $('#main').addClass('mask');
+                needConfirm = true; // 🔒 khóa quay
+
+            }
+
+            function createConfetti() {
+                // Burst chính từ giữa
+                confetti({
+                    particleCount: 200,
+                    spread: 90,
+                    origin: { y: 0.6, x: 0.5 },
+                    colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffa500', '#800080', '#ffc0cb', '#a52a2a'],
+                    scalar: 1.5
+                });
+
+                // Burst từ trái
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 100,
+                        angle: 60,
+                        spread: 70,
+                        origin: { x: 0, y: 0.5 },
+                        colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffa500', '#800080', '#ffc0cb', '#a52a2a'],
+                        scalar: 1.5
+                    });
+                }, 200);
+
+                // Burst từ phải
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 100,
+                        angle: 120,
+                        spread: 70,
+                        origin: { x: 1, y: 0.5 },
+                        colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffa500', '#800080', '#ffc0cb', '#a52a2a'],
+                        scalar: 1.5
+                    });
+                }, 400);
             }
 
 
@@ -610,10 +712,11 @@
                     currentPrizeIndex: 0, // Giải hiện tại đang chờ quay
                     highlightInterval: null,
                     btns: [
-                        { label: 'GIẢI NHẤT', cn: '一等奖', value: 5, done: false },
-                        { label: 'GIẢI NHÌ', cn: '二等奖', value: 10, done: false },
-                        { label: 'GIẢI BA', cn: '三等奖', value: 10, done: false },
                         { label: 'GIẢI KHUYẾN KHÍCH', cn: '鼓励奖', value: 20, done: false },
+                        { label: 'GIẢI BA', cn: '三等奖', value: 10, done: false },
+                        { label: 'GIẢI NHÌ', cn: '二等奖', value: 10, done: false },
+
+                        { label: 'GIẢI NHẤT', cn: '一等奖', value: 5, done: false },
                         { label: 'GIẢI KHÍCH LỆ BU', cn: '鼓励奖', value: 10, done: false }
                     ]
                 }
@@ -643,6 +746,7 @@
 
                     ,
                     toggle: function () {
+                        if (needConfirm) return;
                         if (isToggling) return;          // ★ khóa trùng lặp
                         isToggling = true;               // ★ gạt công tắc
 
@@ -707,7 +811,7 @@
             });
         })();
     </script>
-    <script>
+    <!-- <script>
         document.addEventListener('click', function (e) {
             const result = document.getElementById('result');
             const tools = document.getElementById('tools');
@@ -729,6 +833,25 @@
             }
         });
 
+    </script> -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            function updateDate() {
+                const now = new Date();
+                const day = String(now.getDate()).padStart(2, '0');
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const year = now.getFullYear();
+
+                const el = document.getElementById('currentDate');
+                if (el) {
+                    el.innerText = `${day}-${month}-${year}`;
+                }
+            }
+
+            updateDate();
+            setInterval(updateDate, 1000);
+        });
     </script>
 
     <script>
@@ -749,11 +872,35 @@
             localStorage.clear();
             location.reload(true);
         }
+        function showHome() {
+            document.getElementById('home-screen').style.display = 'block';
+            const date = document.getElementById('currentDate');
+            if (date) {
+                date.style.display = 'block';
+            }
+
+        }
     </script>
+    <script>
+        function confirmResult() {
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('main').classList.remove('mask');
+            window.appVue.running = false;
+
+            needConfirm = false;   // ✅ MỞ KHÓA
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <!-- LINK XEM KẾT QUẢ -->
     <div class="result-btn">
         <a href="./result.html" target="_blank">获奖名单</a>
     </div>
+    <div id="currentDate"></div>
+    <!-- NÚT VỀ HOME -->
+    <div class="home-btn">
+        <a href="#" onclick="showHome()">首页</a>
+    </div>
+
 
 </body>
 
