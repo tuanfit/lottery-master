@@ -738,6 +738,9 @@
                         if (item.done) return;
 
                         $('#result').css('display', 'none');
+                        if (needConfirm) {
+    document.getElementById('restoreResultBtn').style.display = 'block';
+}
                         $('#main').removeClass('mask');
 
                         this.selected = item.value;
@@ -790,6 +793,9 @@
                         } else {
                             /* ==== BẮT ĐẦU QUAY (giữ nguyên code cũ) ==== */
                             $('#result').css('display', 'none');
+                            if (needConfirm) {
+    document.getElementById('restoreResultBtn').style.display = 'block';
+}
                             $('#main').removeClass('mask');
                             var list = canvas.getElementsByTagName('a');
                             var i = 0;
@@ -834,6 +840,36 @@
         });
 
     </script> -->
+    <script>
+document.addEventListener('click', function (e) {
+    const result = document.getElementById('result');
+    const tools = document.getElementById('tools');
+    const main = document.getElementById('main');
+
+    if (!result) return;
+
+    const style = window.getComputedStyle(result);
+
+    // Chỉ xử lý khi kết quả đang hiện
+    if (style.display !== 'none') {
+
+        // 🚫 ĐANG CHỜ XÁC NHẬN → KHÔNG CHO ẨN
+        if (typeof needConfirm !== 'undefined' && needConfirm) return;
+
+        // ✅ Click ngoài tools + ngoài result mới ẩn
+        if (!tools.contains(e.target) && !result.contains(e.target)) {
+            result.style.display = 'none';
+            main.classList.remove('mask');
+
+            // Reset canvas về trạng thái quay
+            if (window.TagCanvas) {
+                TagCanvas.Reload('myCanvas');
+            }
+        }
+    }
+});
+</script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
 
@@ -885,11 +921,27 @@
         function confirmResult() {
             document.getElementById('result').style.display = 'none';
             document.getElementById('main').classList.remove('mask');
+                document.getElementById('restoreResultBtn').style.display = 'none';
+
             window.appVue.running = false;
 
             needConfirm = false;   // ✅ MỞ KHÓA
         }
     </script>
+    <script>
+function restoreResult() {
+    const result = document.getElementById('result');
+    const main = document.getElementById('main');
+    const btn = document.getElementById('restoreResultBtn');
+
+    if (!needConfirm) return;
+
+    result.style.display = 'flex';
+    main.classList.add('mask');
+    btn.style.display = 'none';
+}
+</script>
+
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <!-- LINK XEM KẾT QUẢ -->
     <div class="result-btn">
@@ -901,6 +953,21 @@
         <a href="#" onclick="showHome()">首页</a>
     </div>
 
+<div id="restoreResultBtn"
+     style="
+        display:none;
+        position:fixed;
+        bottom:140px;
+        right:20px;
+        z-index:30000;
+     ">
+    <button class="pure-button button-secondary"
+            style="font-size:12px;padding:6px 10px;border-radius:20px;"
+            onclick="restoreResult()">
+        📄 Xem kết quả<br>
+        查看结果
+    </button>
+</div>
 
 </body>
 
