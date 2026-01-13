@@ -395,14 +395,14 @@
 
         #currentDate {
             position: fixed;
-            bottom: 90px;
+            bottom: clamp(90px, 10vh, 105px);
             left: 50%;
             transform: translateX(-50%);
             z-index: 25000;
 
             /* --- Kiểu chữ Bold & Serif --- */
             font-family: "Times New Roman", Times, serif;
-            font-size: 26px;
+            font-size: 27px;
             /* Tăng nhẹ kích thước */
             font-weight: 800;
             /* Độ đậm cao nhất */
